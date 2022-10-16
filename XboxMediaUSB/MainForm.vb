@@ -1,15 +1,18 @@
 Imports System.IO
+Imports System.ComponentModel
 
 Public Class MainForm
 
-    Dim SelectedDrive As IO.DriveInfo
+    Dim SelectedDrive As DriveInfo
 
-    Dim WithEvents FormatWorker As New System.ComponentModel.BackgroundWorker()
-    Dim WithEvents PermissionWorker As New System.ComponentModel.BackgroundWorker()
+    Dim WithEvents FormatWorker As New BackgroundWorker()
+    Dim WithEvents PermissionWorker As New BackgroundWorker()
 
     Delegate Sub UpdateTextStatusDelegate(ByVal statLabel As Label, ByVal stringValue As String)
 
-    Private Sub Form1_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+    Private Sub MainForm_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        Dim VersionString As String = String.Format("{0}.{1}", My.Application.Info.Version.Major, My.Application.Info.Version.Minor)
+        Me.Text = "XboxMediaUSB v" + VersionString
         For Each Drive As DriveInfo In DriveInfo.GetDrives()
             If Drive.DriveType = DriveType.Removable And Drive.IsReady Or DriveType.Fixed And Drive.IsReady Then
                 DriveList1.Items.Add(Drive.Name + vbTab + Drive.VolumeLabel)
@@ -32,8 +35,8 @@ Public Class MainForm
         FormatStartInfo.RedirectStandardInput = True
 
         Dim FormatProcess As Process = Process.Start(FormatStartInfo)
-        Dim processInputStream As StreamWriter = FormatProcess.StandardInput
-        processInputStream.Write(vbCr & vbLf)
+        Dim ProcessInputStream As StreamWriter = FormatProcess.StandardInput
+        ProcessInputStream.Write(vbCr & vbLf)
 
         FormatProcess.WaitForExit()
     End Sub
@@ -67,7 +70,7 @@ Public Class MainForm
         End Try
     End Sub
 
-    Private Sub FormatWorker_RunWorkerCompleted(ByVal sender As Object, ByVal e As System.ComponentModel.RunWorkerCompletedEventArgs) Handles FormatWorker.RunWorkerCompleted
+    Private Sub FormatWorker_RunWorkerCompleted(ByVal sender As Object, ByVal e As RunWorkerCompletedEventArgs) Handles FormatWorker.RunWorkerCompleted
         Me.Cursor = Cursors.Default
 
         If StatusLabel.InvokeRequired Then
@@ -119,7 +122,7 @@ Public Class MainForm
             Directory.CreateDirectory(SelectedDrive.Name + "RetroArch")
             Directory.CreateDirectory(SelectedDrive.Name + "RetroArch\assets")
             Directory.CreateDirectory(SelectedDrive.Name + "RetroArch\cheats")
-            Directory.CreateDirectory(SelectedDrive.Name + "RetroArch\configs")
+            Directory.CreateDirectory(SelectedDrive.Name + "RetroArch\config")
             Directory.CreateDirectory(SelectedDrive.Name + "RetroArch\info")
             Directory.CreateDirectory(SelectedDrive.Name + "RetroArch\logs")
             Directory.CreateDirectory(SelectedDrive.Name + "RetroArch\overlays")
@@ -142,7 +145,7 @@ Public Class MainForm
         PermissionWorker.RunWorkerAsync()
     End Sub
 
-    Private Sub PermissionWorker_DoWork(ByVal sender As Object, ByVal e As System.ComponentModel.DoWorkEventArgs) Handles PermissionWorker.DoWork
+    Private Sub PermissionWorker_DoWork(ByVal sender As Object, ByVal e As DoWorkEventArgs) Handles PermissionWorker.DoWork
         Try
             Dim AllAppPKGUser As New Security.Principal.SecurityIdentifier("S-1-15-2-1") 'ALL APPLICATION PACKAGES
             Dim SecRule As New Security.AccessControl.FileSystemAccessRule(AllAppPKGUser, Security.AccessControl.FileSystemRights.FullControl, Security.AccessControl.InheritanceFlags.ContainerInherit Or Security.AccessControl.InheritanceFlags.ObjectInherit, Security.AccessControl.PropagationFlags.None, Security.AccessControl.AccessControlType.Allow)
@@ -155,14 +158,14 @@ Public Class MainForm
         End Try
     End Sub
 
-    Private Sub PermissionWorker_RunWorkerCompleted(ByVal sender As Object, ByVal e As System.ComponentModel.RunWorkerCompletedEventArgs) Handles PermissionWorker.RunWorkerCompleted
+    Private Sub PermissionWorker_RunWorkerCompleted(ByVal sender As Object, ByVal e As RunWorkerCompletedEventArgs) Handles PermissionWorker.RunWorkerCompleted
         MsgBox(SelectedDrive.Name + " is now prepared to use with your Xbox.", MsgBoxStyle.Information)
         StartButton.Enabled = True
     End Sub
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles StartButton.Click
         If DriveList1.SelectedItem IsNot Nothing Then
-            If MsgBox("Do you really want to format " + SelectedDrive.Name + " ? " + vbNewLine + _
+            If MsgBox("Do you really want to format " + SelectedDrive.Name + " ?" + vbNewLine + _
             "All exisisting data on this drive will be erased.", MsgBoxStyle.YesNo, "Please confirm") = MsgBoxResult.Yes Then
 
                 StatusLabel.Visible = True
