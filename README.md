@@ -12,29 +12,41 @@ Version 1 comes with 2 options:
 * Optional: Creates default Games and RetroArch folders with the structure listed below.
 ```
 Games
-Games\Atari
-Games\Atari\2600
-Games\Atari\Jaguar
-Games\Nintendo
-Games\Nintendo\DS
-Games\Nintendo\GameBoy
-Games\Nintendo\GameBoyColor
-Games\Nintendo\GameBoyAdvance
-Games\Nintendo\GameCube
-Games\Nintendo\N64
-Games\Nintendo\NES
-Games\Nintendo\SuperNintendo
-Games\Nintendo\Wii
-Games\Playstation
-Games\Playstation\PS1
-Games\Playstation\PS2
-Games\Playstation\PSP
-Games\Sega
-Games\Sega\Dreamcast
-Games\Sega\GameGear
-Games\Sega\Genesis-MegaDrive
-Games\Sega\MasterSystem
-Games\Sega\Saturn
+Games\Amstrad - GX4000
+Games\Atari - 2600
+Games\Atari - 400-800-1200XL
+Games\Atari - 5200
+Games\Atari - 7800
+Games\Atari - Jaguar
+Games\Atari - Lynx
+Games\DOS
+Games\FBNeo - Arcade Games
+Games\Mattel - Intellivision
+Games\Microsoft - MSX - MSX2 - MSX2P - MSX Turbo R
+Games\NEC - PC Engine - TurboGrafx 16
+Games\NEC - PC Engine CD - TurboGrafx-CD
+Games\NEC - PC Engine SuperGrafx
+Games\Nintendo - Family Computer Disk System
+Games\Nintendo - Game Boy Advance
+Games\Nintendo - Game Boy Color
+Games\Nintendo - Game Boy
+Games\Nintendo - GameCube
+Games\Nintendo - Nintendo 64
+Games\Nintendo - Nintendo DS
+Games\Nintendo - Nintendo Entertainment System
+Games\Nintendo - Satellaview
+Games\Nintendo - Super Nintendo Entertainment System
+Games\Nintendo - Wii
+Games\Sony - PlayStation
+Games\Sony - PlayStation 2
+Games\Sony - PlayStation Portable
+Games\Sega - 32X
+Games\Sega - Dreamcast
+Games\Sega - Game Gear
+Games\Sega - Master System - Mark III
+Games\Sega - Mega Drive - Genesis
+Games\Sega - Mega-CD - Sega CD
+Games\Sega - Saturn
 
 RetroArch
 RetroArch\assets
