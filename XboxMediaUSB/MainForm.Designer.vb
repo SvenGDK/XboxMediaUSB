@@ -117,7 +117,7 @@ Partial Class MainForm
         '
         'SetPermissionsButton
         '
-        Me.SetPermissionsButton.Location = New System.Drawing.Point(465, 98)
+        Me.SetPermissionsButton.Location = New System.Drawing.Point(465, 100)
         Me.SetPermissionsButton.Name = "SetPermissionsButton"
         Me.SetPermissionsButton.Size = New System.Drawing.Size(145, 30)
         Me.SetPermissionsButton.TabIndex = 9
@@ -142,16 +142,16 @@ Partial Class MainForm
         Me.DriveList2.Size = New System.Drawing.Size(596, 28)
         Me.DriveList2.TabIndex = 7
         '
-        'Form1
+        'MainForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(645, 391)
+        Me.ClientSize = New System.Drawing.Size(638, 384)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
-        Me.Name = "Form1"
+        Me.Name = "MainForm"
         Me.Text = "XboxMediaUSB v1"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox2.ResumeLayout(False)

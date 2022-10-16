@@ -32,7 +32,6 @@ Public Class MainForm
         FormatStartInfo.RedirectStandardInput = True
 
         Dim FormatProcess As Process = Process.Start(FormatStartInfo)
-
         Dim processInputStream As IO.StreamWriter = FormatProcess.StandardInput
         processInputStream.Write(vbCr & vbLf)
 
@@ -44,7 +43,7 @@ Public Class MainForm
             Try
                 SelectedDrive = New DriveInfo(DriveList1.Text.Split(vbTab)(0))
             Catch ex As Exception
-                MsgBox(ex.ToString)
+                MsgBox("Error while getting Drive information for " + SelectedDrive.Name)
             End Try
         End If
     End Sub
@@ -54,7 +53,7 @@ Public Class MainForm
             Try
                 SelectedDrive = New DriveInfo(DriveList2.Text.Split(vbTab)(0))
             Catch ex As Exception
-                MsgBox(ex.ToString)
+                MsgBox("Error while getting Drive information for " + SelectedDrive.Name)
             End Try
         End If
     End Sub
@@ -63,7 +62,8 @@ Public Class MainForm
         Try
             FormatDrive()
         Catch ex As Exception
-            MsgBox(ex.ToString)
+            MsgBox("Could not format " + SelectedDrive.Name)
+            MsgBox(ex.Message)
         End Try
     End Sub
 
@@ -139,21 +139,28 @@ Public Class MainForm
             CurrentDirPermissions.AddAccessRule(SecRule)
             Directory.SetAccessControl(SelectedDrive.Name, CurrentDirPermissions)
         Catch ex As Exception
-            MsgBox(ex.ToString)
+            MsgBox("Could not set permissions on " + SelectedDrive.Name)
         End Try
     End Sub
 
     Private Sub PermissionWorker_RunWorkerCompleted(ByVal sender As Object, ByVal e As System.ComponentModel.RunWorkerCompletedEventArgs) Handles PermissionWorker.RunWorkerCompleted
         MsgBox(SelectedDrive.Name + " is now prepared to use with your Xbox.", MsgBoxStyle.Information)
+        StartButton.Enabled = True
     End Sub
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles StartButton.Click
-        If MsgBox("Do you really want to format " + SelectedDrive.Name + " ? All exisisting data on this drive will be erased.", MsgBoxStyle.YesNo, "Please confirm") = MsgBoxResult.Yes Then
-            StatusLabel.Visible = True
-            StatusProgressBar.Visible = True
-            StatusLabel.Text = "Formatting drive " + SelectedDrive.Name
-            Me.Cursor = Cursors.WaitCursor
-            FormatWorker.RunWorkerAsync()
+        If DriveList1.SelectedItem IsNot Nothing Then
+            If MsgBox("Do you really want to format " + SelectedDrive.Name + " ? " + vbNewLine + _
+            "All exisisting data on this drive will be erased.", MsgBoxStyle.YesNo, "Please confirm") = MsgBoxResult.Yes Then
+
+                StatusLabel.Visible = True
+                StatusProgressBar.Visible = True
+                StartButton.Enabled = False
+                StatusLabel.Text = "Formatting drive " + SelectedDrive.Name
+                Me.Cursor = Cursors.WaitCursor
+
+                FormatWorker.RunWorkerAsync()
+            End If
         End If
     End Sub
 
