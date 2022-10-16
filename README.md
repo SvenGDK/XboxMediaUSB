@@ -1,5 +1,6 @@
 # XboxMediaUSB v1
-<img width="325" alt="w11" src="https://user-images.githubusercontent.com/84620/196041768-b9ecbc36-1c31-4abf-ad04-efb86bb41f78.png">
+
+<img width="256" alt="w11" src="https://user-images.githubusercontent.com/84620/196041768-b9ecbc36-1c31-4abf-ad04-efb86bb41f78.png"> <img width="256" alt="w2k" src="https://user-images.githubusercontent.com/84620/196042058-62b5c622-3ffd-46af-9fc3-ac62d31155c5.png">
 
 This tool is a simple Windows GUI for @gamr13's USB script.
 
