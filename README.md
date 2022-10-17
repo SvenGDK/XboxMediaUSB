@@ -4,12 +4,12 @@
 
 This tool is a simple Windows GUI for @Gamr13 USB script.
 
-It runs on Win98 with .NET Framework 2 installed up to Windows 11.
+It runs on Windows 98 with .NET Framework 2 installed up to Windows 11.
 
-Version 1 comes with 2 options:
-1. Format external USB drive to NTFS and set permissions for ALL APPLICATION PACKAGES.
+### Version 1 comes with 2 options:
+#### 1. Format external USB drive to NTFS and set permissions for ALL APPLICATION PACKAGES.
 
-* Optional: Creates default Games and RetroArch folders with the structure listed below.
+###### Optional: Creates default Games and RetroArch folders with the structure listed below.
 ```
 Games
 Games\Amstrad - GX4000
@@ -51,7 +51,7 @@ Games\Sega - Saturn
 RetroArch
 RetroArch\assets
 RetroArch\cheats
-RetroArch\configs
+RetroArch\config
 RetroArch\info
 RetroArch\logs
 RetroArch\overlays
@@ -65,4 +65,6 @@ RetroArch\system\pcsx2
 RetroArch\thumbnails
 ```
 
-2. Set permissions for ALL APPLICATION PACKAGES on existing external USB drive
+#### 2. Set permissions for ALL APPLICATION PACKAGES on existing external USB drive
+> This option will ONLY add **ALL APPLICATION PACKAGES** to your external drive.<br/>
+> Use this when you already have set up your external drive for your Xbox.
