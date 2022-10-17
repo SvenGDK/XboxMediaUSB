@@ -7,12 +7,16 @@ Public Class MainForm
 
     Dim WithEvents FormatWorker As New BackgroundWorker()
     Dim WithEvents PermissionWorker As New BackgroundWorker()
+    Dim WithEvents ProgressTimer As New Timer()
 
     Delegate Sub UpdateTextStatusDelegate(ByVal statLabel As Label, ByVal stringValue As String)
 
     Private Sub MainForm_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        'Set Window Title and add current version
         Dim VersionString As String = String.Format("{0}.{1}", My.Application.Info.Version.Major, My.Application.Info.Version.Minor)
         Me.Text = "XboxMediaUSB v" + VersionString
+
+        'List removable and fixed drives in 'Ready' state
         For Each Drive As DriveInfo In DriveInfo.GetDrives()
             If Drive.DriveType = DriveType.Removable And Drive.IsReady Or DriveType.Fixed And Drive.IsReady Then
                 DriveList1.Items.Add(Drive.Name + vbTab + Drive.VolumeLabel)
@@ -27,13 +31,14 @@ Public Class MainForm
 
     Public Sub FormatDrive()
         Dim FormatStartInfo As New ProcessStartInfo()
-        FormatStartInfo.FileName = "format.com"
+        FormatStartInfo.FileName = "format.com" 'The real format command, not only 'format'.
         FormatStartInfo.Arguments = "/fs:NTFS /v:XboxMediaUSB /q " + SelectedDrive.Name.Remove(2)
         FormatStartInfo.UseShellExecute = False
         FormatStartInfo.CreateNoWindow = True
-        FormatStartInfo.RedirectStandardOutput = True
+        FormatStartInfo.RedirectStandardOutput = True 'Required
         FormatStartInfo.RedirectStandardInput = True
 
+        'Start format without user interaction
         Dim FormatProcess As Process = Process.Start(FormatStartInfo)
         Dim ProcessInputStream As StreamWriter = FormatProcess.StandardInput
         ProcessInputStream.Write(vbCr & vbLf)
@@ -72,6 +77,7 @@ Public Class MainForm
 
     Private Sub FormatWorker_RunWorkerCompleted(ByVal sender As Object, ByVal e As RunWorkerCompletedEventArgs) Handles FormatWorker.RunWorkerCompleted
         Me.Cursor = Cursors.Default
+        ProgressTimer.Stop()
 
         If StatusLabel.InvokeRequired Then
             StatusLabel.BeginInvoke(New UpdateTextStatusDelegate(AddressOf TextDelegateMethod), SelectedDrive.Name + " formated!")
@@ -82,6 +88,7 @@ Public Class MainForm
         StatusProgressBar.Visible = False
 
         If MsgBox("Do you want to create the 'Games' and 'RetroArch' folders on your new drive?", MsgBoxStyle.YesNo, "Directories") = MsgBoxResult.Yes Then
+            'Create directories on the selected drive
             Directory.CreateDirectory(SelectedDrive.Name + "Games")
             Directory.CreateDirectory(SelectedDrive.Name + "Games\Amstrad - GX4000")
             Directory.CreateDirectory(SelectedDrive.Name + "Games\Atari - 2600")
@@ -163,27 +170,53 @@ Public Class MainForm
         StartButton.Enabled = True
     End Sub
 
-    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles StartButton.Click
+    Private Sub StartButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles StartButton.Click
         If DriveList1.SelectedItem IsNot Nothing Then
             If MsgBox("Do you really want to format " + SelectedDrive.Name + " ?" + vbNewLine + _
             "All exisisting data on this drive will be erased.", MsgBoxStyle.YesNo, "Please confirm") = MsgBoxResult.Yes Then
 
+                'Show status and disable Start button
                 StatusLabel.Visible = True
                 StatusProgressBar.Visible = True
                 StartButton.Enabled = False
                 StatusLabel.Text = "Formatting drive " + SelectedDrive.Name
                 Me.Cursor = Cursors.WaitCursor
 
+                'Marquee style is not compatible with Windows 2000 and below
+                Select Case System.Environment.OSVersion.Version.Major
+                    Case 4 'Windows 95 - NT 4.0
+                        StatusProgressBar.Style = ProgressBarStyle.Continuous
+                        ProgressTimer.Start()
+                    Case 5 'Windows 2000, XP and 2003
+                        If System.Environment.OSVersion.Version.Minor = 1 Then 'XP
+                            StatusProgressBar.Style = ProgressBarStyle.Marquee
+                        Else
+                            StatusProgressBar.Style = ProgressBarStyle.Continuous
+                            ProgressTimer.Start()
+                        End If
+                    Case Else 'Newer Windows
+                        StatusProgressBar.Style = ProgressBarStyle.Marquee
+                End Select
+
                 FormatWorker.RunWorkerAsync()
             End If
         End If
     End Sub
 
-    Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SetPermissionsButton.Click
+    Private Sub SetPermissionsButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SetPermissionsButton.Click
         If DriveList2.SelectedItem IsNot Nothing Then
             PermissionWorker.RunWorkerAsync()
         Else
             MsgBox("Please select a drive first.")
+        End If
+    End Sub
+
+    Private Sub ProgressionTimer_Tick(ByVal sender As Object, ByVal e As System.EventArgs) Handles ProgressTimer.Tick
+        'Very simple ProgressBar loop when using Win2K or below
+        If StatusProgressBar.Value <> 100 Then
+            StatusProgressBar.Value += 1
+        Else
+            StatusProgressBar.Value = 0
         End If
     End Sub
 

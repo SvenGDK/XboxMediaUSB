@@ -52,7 +52,7 @@ Partial Class MainForm
         '
         'StatusLabel
         '
-        Me.StatusLabel.Location = New System.Drawing.Point(17, 152)
+        Me.StatusLabel.Location = New System.Drawing.Point(16, 152)
         Me.StatusLabel.Name = "StatusLabel"
         Me.StatusLabel.Size = New System.Drawing.Size(500, 20)
         Me.StatusLabel.TabIndex = 8
@@ -61,7 +61,7 @@ Partial Class MainForm
         '
         'StatusProgressBar
         '
-        Me.StatusProgressBar.Location = New System.Drawing.Point(17, 175)
+        Me.StatusProgressBar.Location = New System.Drawing.Point(16, 175)
         Me.StatusProgressBar.Name = "StatusProgressBar"
         Me.StatusProgressBar.Size = New System.Drawing.Size(500, 23)
         Me.StatusProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee
@@ -70,16 +70,16 @@ Partial Class MainForm
         '
         'StartButton
         '
-        Me.StartButton.Location = New System.Drawing.Point(523, 66)
+        Me.StartButton.Location = New System.Drawing.Point(524, 66)
         Me.StartButton.Name = "StartButton"
-        Me.StartButton.Size = New System.Drawing.Size(87, 30)
+        Me.StartButton.Size = New System.Drawing.Size(87, 29)
         Me.StartButton.TabIndex = 6
         Me.StartButton.Text = "Start"
         Me.StartButton.UseVisualStyleBackColor = True
         '
         'Label2
         '
-        Me.Label2.Location = New System.Drawing.Point(17, 107)
+        Me.Label2.Location = New System.Drawing.Point(16, 108)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(500, 20)
         Me.Label2.TabIndex = 5
@@ -88,7 +88,7 @@ Partial Class MainForm
         'Label1
         '
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(13, 40)
+        Me.Label1.Location = New System.Drawing.Point(14, 40)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(504, 23)
         Me.Label1.TabIndex = 4
@@ -98,7 +98,7 @@ Partial Class MainForm
         '
         Me.DriveList1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.DriveList1.FormattingEnabled = True
-        Me.DriveList1.Location = New System.Drawing.Point(17, 66)
+        Me.DriveList1.Location = New System.Drawing.Point(16, 66)
         Me.DriveList1.Name = "DriveList1"
         Me.DriveList1.Size = New System.Drawing.Size(500, 28)
         Me.DriveList1.TabIndex = 2
@@ -108,9 +108,9 @@ Partial Class MainForm
         Me.GroupBox2.Controls.Add(Me.SetPermissionsButton)
         Me.GroupBox2.Controls.Add(Me.Label3)
         Me.GroupBox2.Controls.Add(Me.DriveList2)
-        Me.GroupBox2.Location = New System.Drawing.Point(12, 233)
+        Me.GroupBox2.Location = New System.Drawing.Point(12, 232)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(616, 144)
+        Me.GroupBox2.Size = New System.Drawing.Size(616, 145)
         Me.GroupBox2.TabIndex = 3
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Set only permissions on drive (files will not be deleted)"
@@ -119,7 +119,7 @@ Partial Class MainForm
         '
         Me.SetPermissionsButton.Location = New System.Drawing.Point(465, 100)
         Me.SetPermissionsButton.Name = "SetPermissionsButton"
-        Me.SetPermissionsButton.Size = New System.Drawing.Size(145, 30)
+        Me.SetPermissionsButton.Size = New System.Drawing.Size(146, 29)
         Me.SetPermissionsButton.TabIndex = 9
         Me.SetPermissionsButton.Text = "Set permissions"
         Me.SetPermissionsButton.UseVisualStyleBackColor = True
@@ -137,7 +137,7 @@ Partial Class MainForm
         '
         Me.DriveList2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.DriveList2.FormattingEnabled = True
-        Me.DriveList2.Location = New System.Drawing.Point(14, 64)
+        Me.DriveList2.Location = New System.Drawing.Point(14, 65)
         Me.DriveList2.Name = "DriveList2"
         Me.DriveList2.Size = New System.Drawing.Size(596, 28)
         Me.DriveList2.TabIndex = 7
@@ -146,13 +146,13 @@ Partial Class MainForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(638, 384)
+        Me.ClientSize = New System.Drawing.Size(638, 385)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
         Me.Name = "MainForm"
-        Me.Text = "XboxMediaUSB v1"
+        Me.Text = "XboxMediaUSB"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox2.ResumeLayout(False)
         Me.ResumeLayout(False)
