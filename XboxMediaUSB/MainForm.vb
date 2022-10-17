@@ -80,9 +80,9 @@ Public Class MainForm
         ProgressTimer.Stop()
 
         If StatusLabel.InvokeRequired Then
-            StatusLabel.BeginInvoke(New UpdateTextStatusDelegate(AddressOf TextDelegateMethod), SelectedDrive.Name + " formated!")
+            StatusLabel.BeginInvoke(New UpdateTextStatusDelegate(AddressOf TextDelegateMethod), SelectedDrive.Name + " formatted!")
         Else
-            StatusLabel.Text = SelectedDrive.Name + " formated!"
+            StatusLabel.Text = SelectedDrive.Name + " formatted!"
         End If
 
         StatusProgressBar.Visible = False

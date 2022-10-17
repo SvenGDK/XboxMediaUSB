@@ -113,7 +113,7 @@ Partial Class MainForm
         Me.GroupBox2.Size = New System.Drawing.Size(616, 145)
         Me.GroupBox2.TabIndex = 3
         Me.GroupBox2.TabStop = False
-        Me.GroupBox2.Text = "Set only permissions on drive (files will not be deleted)"
+        Me.GroupBox2.Text = "Only set permissions on drive (files will not be deleted)"
         '
         'SetPermissionsButton
         '
