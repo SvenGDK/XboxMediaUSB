@@ -50,6 +50,7 @@
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="INI.vb" />
     <Compile Include="MainForm.vb">
       <SubType>Form</SubType>
     </Compile>
