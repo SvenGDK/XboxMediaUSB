@@ -9,7 +9,7 @@ It runs on Windows 98 with .NET Framework 2 installed up to Windows 11.
 ### Version 1 comes with 2 options:
 #### 1. Format external USB drive to NTFS and set permissions for ALL APPLICATION PACKAGES.
 
-###### Optional: Creates default Games and RetroArch folders with the structure listed below.
+###### Optional: Creates Games, BIOS and RetroArch folders with the structure listed below.
 ```
 Games
 Games\Amstrad - GX4000
@@ -63,6 +63,8 @@ RetroArch\system
 RetroArch\system\dolphin-emu
 RetroArch\system\pcsx2
 RetroArch\thumbnails
+
+BIOS
 ```
 
 #### 2. Set permissions for ALL APPLICATION PACKAGES on existing external USB drive
