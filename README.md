@@ -6,6 +6,8 @@ This tool is a simple Windows GUI for @Gamr13 USB script.
 
 It runs on Windows 98 with .NET Framework 2 installed up to Windows 11.
 
+It is possible to add new content to your Xbox USB drive from other operating systems like MacOS or Linux AFTER it has been formatted with XboxMediaUSB on a Windows system, you only need a NTFS driver which can write data. The new content will be recognized without any issues.
+
 ### Version 1 comes with 2 options:
 #### 1. Format external USB drive to NTFS and set permissions for ALL APPLICATION PACKAGES.
 
