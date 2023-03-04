@@ -1,15 +1,19 @@
 # XboxMediaUSB
 
-<img width="256" alt="w11" src="https://user-images.githubusercontent.com/84620/196041768-b9ecbc36-1c31-4abf-ad04-efb86bb41f78.png"> <img width="256" alt="w2k" src="https://user-images.githubusercontent.com/84620/196042058-62b5c622-3ffd-46af-9fc3-ac62d31155c5.png">
+<img width="426" alt="xboxmediausb2" src="https://user-images.githubusercontent.com/84620/222885481-ab39175d-e2be-4192-83ca-c645fd7f0a66.png">
 
 This tool is a simple Windows GUI for @Gamr13 USB script.
 
-It runs on Windows 98 with .NET Framework 2 installed up to Windows 11, ARM is also supported.
+v1 runs on Windows 98 with .NET Framework 2 installed up to Windows 11 (ARM is also supported in v1.3-2 or higher).</br>
+v2 runs on modern Windows systems (including ARM64) with .NET Framework 4.8
 
-It is possible to add new content to your Xbox USB drive from other operating systems like MacOS or Linux AFTER it has been formatted with XboxMediaUSB on a Windows system, you only need a NTFS driver which can write data. The new content will be recognized without any issues.
+It is possible to add new content to your Xbox USB drive from other operating systems</br>
+like MacOS or Linux AFTER it has been formatted with XboxMediaUSB on a Windows system,</br>
+you only need a NTFS driver which can write data (MacOS primarily).</br>
+The new content will be recognized without any issues.
 
-### Version 1 comes with 2 options:
-#### 1. Format external USB drive to NTFS and set permissions for ALL APPLICATION PACKAGES.
+### v1 & v2 comes with 2 options:
+#### 1. Format an external USB drive to NTFS and add the permissions for ALL APPLICATION PACKAGES.
 
 ###### Optional: Creates Games, BIOS and RetroArch folders with the structure listed below.
 ```
@@ -69,6 +73,8 @@ RetroArch\thumbnails
 BIOS
 ```
 
-#### 2. Set permissions for ALL APPLICATION PACKAGES on existing external USB drive
-> This option will ONLY add **ALL APPLICATION PACKAGES** to your external drive.<br/>
+###### Optional: Adds an Xbox icon and volume label (XboxMediaUSB v2) to your USB drive.
+
+#### 2. Add permissions for ALL APPLICATION PACKAGES on an existing external USB drive
+> This option will ONLY add **ALL APPLICATION PACKAGES** to your external drive and does not delete any data.<br/>
 > Use this when you already have set up your external drive for your Xbox.
