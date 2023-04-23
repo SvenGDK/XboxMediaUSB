@@ -12,8 +12,8 @@ Imports System.Windows
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("XboxMediaUSB")>
-<Assembly: AssemblyDescription("")>
-<Assembly: AssemblyCompany("")>
+<Assembly: AssemblyDescription("Creates a new drive for Xbox consoles or adds missing permissions.")>
+<Assembly: AssemblyCompany("SvenGDK")>
 <Assembly: AssemblyProduct("XboxMediaUSB")>
 <Assembly: AssemblyCopyright("Copyright © SvenGDK 2022-2023")>
 <Assembly: AssemblyTrademark("")>
@@ -55,5 +55,5 @@ Imports System.Windows
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")>
 
-<Assembly: AssemblyVersion("2.0.0.0")>
-<Assembly: AssemblyFileVersion("2.0.0.0")>
+<Assembly: AssemblyVersion("2.1.0.0")>
+<Assembly: AssemblyFileVersion("2.1.0.0")>

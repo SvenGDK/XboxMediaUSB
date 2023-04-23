@@ -2,41 +2,125 @@
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.InteropServices
+Imports System.Security.AccessControl
+Imports System.Security.Principal
 Imports System.Text
 
 Class MainWindow
 
-    Dim SelectedDrive As DriveInfo
-    Dim ConfigFile As INI.IniFile
-    Dim CurrentLanguage As String
-    Dim LanguageConfig As INI.IniFile
+    'Store selected drive infos
+    Dim SelectedDrive As DriveInfo = Nothing
 
+    'Config and language settings
+    Dim ConfigFile As INI.IniFile = Nothing
+    Dim CurrentLanguage As String = ""
+    Dim LanguageConfig As INI.IniFile = Nothing
+
+    'BackgroundWorkers
     Dim WithEvents FormatWorker As New BackgroundWorker()
     Dim WithEvents PermissionWorker As New BackgroundWorker()
 
-    Delegate Sub UpdateTextStatusDelegate(StatTextBlock As TextBlock, StringValue As String)
+    Private Sub MainWindow_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
+        'Set Window Title and add current version
+        Dim VersionString As String = String.Format("{0}.{1}", My.Application.Info.Version.Major, My.Application.Info.Version.Minor)
+        Title = "XboxMediaUSB v" + VersionString
 
-    Public Sub TextDelegateMethod(StatTextBlock As TextBlock, StringValue As String)
-        StatusTextBlock.Text = StringValue
+        'Add all available languages from 'languages' directory to the LanguagesComboBox (in case you want to load a language that has not been added yet)
+        For Each Language As String In Directory.GetFiles(My.Computer.FileSystem.CurrentDirectory + "\languages", "*.ini")
+            Dim LanguageName As String = Path.GetFileNameWithoutExtension(Language)
+            LanguagesComboBox.Items.Add(LanguageName)
+        Next
+
+        'Load config and language file if exists
+        If File.Exists(My.Computer.FileSystem.CurrentDirectory + "\config.ini") And File.Exists(My.Computer.FileSystem.CurrentDirectory + "\languages\EN.ini") Then
+
+            'Set the general config file
+            ConfigFile = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\config.ini")
+
+            'Check if any language is set in the config file
+            If Not ConfigFile.ReadValue("Config", "Language") = "" Then
+
+                'Get and set the language
+                CurrentLanguage = ConfigFile.ReadValue("Config", "Language")
+                If Not CurrentLanguage = "EN" Then
+                    'If it's not English then change the language
+                    LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\" + CurrentLanguage + ".ini")
+                    ChangeUILanguage()
+                Else
+                    'Set to English - Required for dialog strings
+                    LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\EN.ini")
+                End If
+
+            Else
+                'Set the key if no language is set
+                ConfigFile.WriteValue("Config", "Language", "EN")
+                LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\EN.ini")
+            End If
+
+        Else 'Config file and language folder do not exist
+            CheckConfigAndLanguage()
+            ConfigFile = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\config.ini") 'Set the general config file
+            CurrentLanguage = "EN" 'Set the language
+            LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\EN.ini") 'Set language config
+            ChangeUILanguage() 'Load
+        End If
+
+        'Set the language in LanguagesComboBox
+        LanguagesComboBox.SelectedItem = CurrentLanguage
+
+        'List removable and fixed drives in 'Ready' state
+        For Each Drive As DriveInfo In DriveInfo.GetDrives()
+            If Drive.DriveType = DriveType.Removable And Drive.IsReady Or Drive.DriveType = DriveType.Fixed And Drive.IsReady Then
+                If Not Drive.Name = "C:\" Then 'Do not add C:\
+                    DriveList1.Items.Add(Drive.Name + vbTab + Drive.VolumeLabel)
+                    DriveList2.Items.Add(Drive.Name + vbTab + Drive.VolumeLabel)
+                End If
+            End If
+        Next
+
     End Sub
 
-    Public Sub FormatDrive()
-        Dim FormatStartInfo As New ProcessStartInfo With {
-            .FileName = "format.com",
-            .Arguments = "/fs:NTFS /v:XboxMediaUSBv2 /q " + SelectedDrive.Name.Remove(2),
-            .UseShellExecute = False,
-            .CreateNoWindow = True,
-            .RedirectStandardOutput = True, 'Required
-            .RedirectStandardInput = True
-        }
-
-        'Start format without user interaction
-        Dim FormatProcess As Process = Process.Start(FormatStartInfo)
-        Dim ProcessInputStream As StreamWriter = FormatProcess.StandardInput
-        ProcessInputStream.Write(vbCr & vbLf)
-
-        FormatProcess.WaitForExit()
+    Private Sub LanguagesComboBox_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles LanguagesComboBox.SelectionChanged
+        'Set the selected language from the combobox
+        If LanguagesComboBox.SelectedItem IsNot Nothing And e.AddedItems(0) IsNot Nothing Then
+            Try
+                Dim NewLanguage As String = e.AddedItems(0).ToString
+                ConfigFile.WriteValue("Config", "Language", NewLanguage)
+                LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\" + NewLanguage + ".ini")
+                ChangeUILanguage()
+            Catch ex As Exception
+                MsgBox("Error setting custom language. Please check your file.", MsgBoxStyle.Critical, "Error")
+            End Try
+        End If
     End Sub
+
+#Region "Drive Selection"
+
+    Private Sub DriveList1_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles DriveList1.SelectionChanged
+        If DriveList1.SelectedItem IsNot Nothing And e.AddedItems(0) IsNot Nothing Then
+            Try
+                Dim SelectedDriveLetter As String = e.AddedItems(0).ToString().Split(CChar(vbTab))(0)
+                SelectedDrive = New DriveInfo(SelectedDriveLetter)
+            Catch ex As Exception
+                MsgBox(LanguageConfig.ReadValue("Errors", "DriveInformationError"))
+            End Try
+        End If
+    End Sub
+
+    Private Sub DriveList2_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles DriveList2.SelectionChanged
+        If DriveList2.SelectedItem IsNot Nothing And e.AddedItems(0) IsNot Nothing Then
+            Try
+                Dim SelectedDriveLetter As String = e.AddedItems(0).ToString().Split(CChar(vbTab))(0)
+                SelectedDrive = New DriveInfo(SelectedDriveLetter)
+            Catch ex As Exception
+                MsgBox(LanguageConfig.ReadValue("Errors", "DriveInformationError"))
+            End Try
+        End If
+    End Sub
+
+#End Region
+
+#Region "Subs"
 
     Private Sub CreateDirectories()
         'Create Games folder
@@ -97,22 +181,44 @@ Class MainWindow
     End Sub
 
     Private Sub CreateUSBAutorun()
+        'Check if SelectedDrive is actually set
+        If SelectedDrive IsNot Nothing Then
+            'Double check if the name contains "\" and still exists
+            If SelectedDrive.Name.EndsWith("\") And Directory.Exists(SelectedDrive.Name) Then
 
-        'Create an autorun file on the USB
-        Using AutorunWriter As New StreamWriter(SelectedDrive.Name + "autorun.inf")
-            AutorunWriter.WriteLine("[autorun]")
-            AutorunWriter.WriteLine("Label=XboxMediaUSB v2")
-            AutorunWriter.WriteLine("Icon=xbox.ico")
-        End Using
+                If Not File.Exists(SelectedDrive.Name + "autorun.inf") Then
+                    'Create an autorun file on the USB
+                    Using AutorunWriter As New StreamWriter(SelectedDrive.Name + "autorun.inf", False, Encoding.UTF8)
+                        AutorunWriter.WriteLine("[autorun]")
+                        AutorunWriter.WriteLine("Label=XboxMediaUSBv2")
+                        AutorunWriter.WriteLine("Icon=xbox.ico")
+                    End Using
 
-        'Save the icon to the USB
-        Using IconFile As FileStream = File.Create(SelectedDrive.Name + "xbox.ico")
-            Assembly.GetExecutingAssembly().GetManifestResourceStream("XboxMediaUSB.xbox.ico").CopyTo(IconFile)
-        End Using
+                    'Hide the autorun
+                    File.SetAttributes(SelectedDrive.Name + "autorun.inf", FileAttributes.Hidden)
+                Else
+                    MsgBox("Autorun already exists.", MsgBoxStyle.Information)
+                End If
 
-        'Hide the files
-        File.SetAttributes(SelectedDrive.Name + "autorun.inf", FileAttributes.Hidden)
-        File.SetAttributes(SelectedDrive.Name + "xbox.ico", FileAttributes.Hidden)
+                If Not File.Exists(SelectedDrive.Name + "xbox.ico") Then
+                    'Save the icon to the USB
+                    If Assembly.GetExecutingAssembly().GetManifestResourceStream("XboxMediaUSB.xbox.ico") IsNot Nothing Then
+                        Using IconFile As FileStream = File.Create(SelectedDrive.Name + "xbox.ico")
+                            Assembly.GetExecutingAssembly().GetManifestResourceStream("XboxMediaUSB.xbox.ico").CopyTo(IconFile)
+                        End Using
+                        File.SetAttributes(SelectedDrive.Name + "xbox.ico", FileAttributes.Hidden)
+                    Else
+                        If File.Exists(My.Computer.FileSystem.CurrentDirectory + "\xbox.ico") Then
+                            File.Copy(My.Computer.FileSystem.CurrentDirectory + "\xbox.ico", SelectedDrive.Name + "xbox.ico", True)
+                        End If
+                        File.SetAttributes(SelectedDrive.Name + "xbox.ico", FileAttributes.Hidden)
+                    End If
+                Else
+                    MsgBox("Icon already exists.", MsgBoxStyle.Information)
+                End If
+
+            End If
+        End If
     End Sub
 
     Private Sub CheckConfigAndLanguage()
@@ -120,7 +226,7 @@ Class MainWindow
         If Not File.Exists(My.Computer.FileSystem.CurrentDirectory + "\config.ini") Then
             Using ConfigFileWriter As New StreamWriter(My.Computer.FileSystem.CurrentDirectory + "\config.ini", False, Encoding.GetEncoding("ISO-8859-1"))
                 ConfigFileWriter.WriteLine("[Config]")
-                ConfigFileWriter.WriteLine("Language=EN.ini")
+                ConfigFileWriter.WriteLine("Language=EN")
             End Using
         End If
 
@@ -188,74 +294,94 @@ Class MainWindow
         LanguagesMenuItem.Header = LanguageConfig.ReadValue("Interface", "Language")
     End Sub
 
+#End Region
+
+#Region "Button Actions"
+
     Private Sub FormatUSBButton_Click(sender As Object, e As RoutedEventArgs) Handles FormatUSBButton.Click
-
-        If DriveList1.SelectedItem IsNot Nothing Then
+        If DriveList1.SelectedItem IsNot Nothing And SelectedDrive IsNot Nothing Then
             If MsgBox(LanguageConfig.ReadValue("Messages", "FormatConfirmationLine1") + " " + SelectedDrive.Name + " ?" + vbNewLine +
-            LanguageConfig.ReadValue("Messages", "FormatConfirmationLine2"), MsgBoxStyle.YesNo, LanguageConfig.ReadValue("Messages", "FormatConfirmation")) = MsgBoxResult.Yes Then
+            LanguageConfig.ReadValue("Messages", "FormatConfirmationLine2"),
+                      MsgBoxStyle.YesNo, LanguageConfig.ReadValue("Messages", "FormatConfirmation")) = MsgBoxResult.Yes Then
 
-                MainWin.Height = 470
+                If Dispatcher.CheckAccess() = False Then
+                    Dispatcher.BeginInvoke(Sub()
+                                               MainWin.Height = 470
 
-                'Show status and disable Start button
-                StatusTextBlock.Visibility = Visibility.Visible
-                StatusProgressBar.Visibility = Visibility.Visible
+                                               'Show status and disable Start button
+                                               StatusTextBlock.Visibility = Visibility.Visible
+                                               StatusProgressBar.Visibility = Visibility.Visible
 
-                FormatUSBButton.IsEnabled = False
-                AddPermissionsButton.IsEnabled = False
+                                               FormatUSBButton.IsEnabled = False
+                                               AddPermissionsButton.IsEnabled = False
+                                               SetUSBInfosButton.IsEnabled = False
 
-                StatusTextBlock.Text = LanguageConfig.ReadValue("Messages", "FormattingDrive") + " " + SelectedDrive.Name
+                                               StatusTextBlock.Text = LanguageConfig.ReadValue("Messages", "FormattingDrive") + " " + SelectedDrive.Name
 
-                Cursor = Cursors.Wait
-                StatusProgressBar.IsIndeterminate = True
+                                               Cursor = Cursors.Wait
+                                               StatusProgressBar.IsIndeterminate = True
+                                           End Sub)
+                Else
+                    MainWin.Height = 470
+
+                    'Show status and disable Start button
+                    StatusTextBlock.Visibility = Visibility.Visible
+                    StatusProgressBar.Visibility = Visibility.Visible
+
+                    FormatUSBButton.IsEnabled = False
+                    AddPermissionsButton.IsEnabled = False
+                    SetUSBInfosButton.IsEnabled = False
+
+                    StatusTextBlock.Text = LanguageConfig.ReadValue("Messages", "FormattingDrive") + " " + SelectedDrive.Name
+
+                    Cursor = Cursors.Wait
+                    StatusProgressBar.IsIndeterminate = True
+                End If
 
                 FormatWorker.RunWorkerAsync()
             End If
+        Else
+            MsgBox("Please select a drive first", MsgBoxStyle.Exclamation)
         End If
-
     End Sub
 
     Private Sub AddPermissionsButton_Click(sender As Object, e As RoutedEventArgs) Handles AddPermissionsButton.Click
-        If DriveList2.SelectedItem IsNot Nothing Then
+        If DriveList2.SelectedItem IsNot Nothing And SelectedDrive IsNot Nothing Then
             PermissionWorker.RunWorkerAsync()
         Else
-            MsgBox(LanguageConfig.ReadValue("Errors", "CouldNotSetPermissions"))
+            MsgBox("Please select a drive first", MsgBoxStyle.Exclamation)
         End If
     End Sub
 
-    Private Sub DriveList1_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles DriveList1.SelectionChanged
-        If DriveList1.SelectedItem IsNot Nothing Then
-            Try
-                Dim SelectedDriveItem As String = e.AddedItems(0).ToString
-                SelectedDrive = New DriveInfo(SelectedDriveItem.Split(vbTab)(0))
-            Catch ex As Exception
-                MsgBox(LanguageConfig.ReadValue("Errors", "DriveInformationError"))
-            End Try
+    Private Sub SetUSBInfosButton_Click(sender As Object, e As RoutedEventArgs) Handles SetUSBInfosButton.Click
+        If DriveList2.SelectedItem IsNot Nothing And SelectedDrive IsNot Nothing Then
+            CreateUSBAutorun()
+        Else
+            MsgBox("Please select a drive first", MsgBoxStyle.Exclamation)
         End If
     End Sub
 
-    Private Sub DriveList2_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles DriveList2.SelectionChanged
-        If DriveList2.SelectedItem IsNot Nothing Then
-            Try
-                Dim SelectedDriveItem As String = e.AddedItems(0).ToString
-                SelectedDrive = New DriveInfo(SelectedDriveItem.Split(vbTab)(0))
-            Catch ex As Exception
-                MsgBox(LanguageConfig.ReadValue("Errors", "DriveInformationError"))
-            End Try
-        End If
-    End Sub
+#End Region
+
+#Region "BackgroundWorker Events"
 
     Private Sub PermissionWorker_DoWork(sender As Object, e As DoWorkEventArgs) Handles PermissionWorker.DoWork
         Try
-            Dim AllApplicationPackagesUser As New Security.Principal.SecurityIdentifier("S-1-15-2-1")
-            Dim SecurityRule As New Security.AccessControl.FileSystemAccessRule(AllApplicationPackagesUser,
-                                                                                Security.AccessControl.FileSystemRights.FullControl,
-                                                                                Security.AccessControl.InheritanceFlags.ContainerInherit Or Security.AccessControl.InheritanceFlags.ObjectInherit,
-                                                                                Security.AccessControl.PropagationFlags.None,
-                                                                                Security.AccessControl.AccessControlType.Allow)
-            Dim CurrentDirPermissions As Security.AccessControl.DirectorySecurity = Directory.GetAccessControl(SelectedDrive.Name)
+            Dim AllApplicationPackagesUser As New SecurityIdentifier("S-1-15-2-1")
+            Dim CurrentDirPermissions As DirectorySecurity = Directory.GetAccessControl(SelectedDrive.Name)
+            Dim SecurityRule As New FileSystemAccessRule(AllApplicationPackagesUser,
+                                                         FileSystemRights.FullControl,
+                                                         InheritanceFlags.ContainerInherit Or InheritanceFlags.ObjectInherit,
+                                                         PropagationFlags.None,
+                                                         AccessControlType.Allow)
             CurrentDirPermissions.AddAccessRule(SecurityRule)
 
-            Directory.SetAccessControl(SelectedDrive.Name, CurrentDirPermissions)
+            If Dispatcher.CheckAccess() = False Then
+                Dispatcher.BeginInvoke(Sub() Directory.SetAccessControl(SelectedDrive.Name, CurrentDirPermissions))
+            Else
+                Directory.SetAccessControl(SelectedDrive.Name, CurrentDirPermissions)
+            End If
+
         Catch ex As Exception
             MsgBox(LanguageConfig.ReadValue("Errors", "CouldNotSetPermissions") + " " + SelectedDrive.Name)
         End Try
@@ -263,48 +389,103 @@ Class MainWindow
 
     Private Sub PermissionWorker_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles PermissionWorker.RunWorkerCompleted
         If StatusTextBlock.Dispatcher.CheckAccess() = False Then
-            StatusTextBlock.Dispatcher.BeginInvoke(New UpdateTextStatusDelegate(AddressOf TextDelegateMethod), "")
+            StatusTextBlock.Dispatcher.BeginInvoke(Sub() StatusTextBlock.Text = "")
         Else
             StatusTextBlock.Text = ""
         End If
 
-        If MainWin.Height = 470 Then
-            MainWin.Height = 435
+        If MainWin.Dispatcher.CheckAccess() = False Then
+            MainWin.Dispatcher.BeginInvoke(Sub()
+                                               If MainWin.Height = 470 Then
+                                                   MainWin.Height = 435
+                                               End If
+                                           End Sub)
+        Else
+            If MainWin.Height = 470 Then
+                MainWin.Height = 435
+            End If
+        End If
+
+        If Dispatcher.CheckAccess() = False Then
+            Dispatcher.BeginInvoke(Sub()
+                                       FormatUSBButton.IsEnabled = True
+                                       AddPermissionsButton.IsEnabled = True
+                                       SetUSBInfosButton.IsEnabled = True
+                                       Cursor = Cursors.Arrow
+                                   End Sub)
+        Else
+            FormatUSBButton.IsEnabled = True
+            AddPermissionsButton.IsEnabled = True
+            SetUSBInfosButton.IsEnabled = True
+            Cursor = Cursors.Arrow
         End If
 
         MsgBox(SelectedDrive.Name + " " + LanguageConfig.ReadValue("Messages", "PreparedforXbox"), MsgBoxStyle.Information)
-        FormatUSBButton.IsEnabled = True
     End Sub
 
     Private Sub FormatWorker_DoWork(sender As Object, e As DoWorkEventArgs) Handles FormatWorker.DoWork
         Try
-            FormatDrive()
+            'Set format process start infos
+            Dim FormatStartInfo As New ProcessStartInfo With {
+            .FileName = "format.com",
+            .Arguments = SelectedDrive.Name.Remove(2) + " /fs:NTFS /v:XboxMediaUSBv2 /q", .UseShellExecute = False, .CreateNoWindow = True, .RedirectStandardOutput = True, .RedirectStandardInput = True}
+
+            'Start format
+            Using FormatProcess As New Process With {.StartInfo = FormatStartInfo}
+                FormatProcess.Start()
+
+                'Confirm the format process
+                Dim ProcessInputStream As StreamWriter = FormatProcess.StandardInput
+                ProcessInputStream.Write(vbCr & vbLf)
+
+                'Wait until done
+                FormatProcess.WaitForExit()
+            End Using
+
         Catch ex As Exception
             MsgBox(LanguageConfig.ReadValue("Errors", "CouldNotFormat") + " " + SelectedDrive.Name, MsgBoxStyle.Critical, "Error")
         End Try
     End Sub
 
     Private Sub FormatWorker_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles FormatWorker.RunWorkerCompleted
-        Cursor = Cursors.Arrow
 
+        'Format succeeded message
         If StatusTextBlock.Dispatcher.CheckAccess() = False Then
-            StatusTextBlock.Dispatcher.BeginInvoke(New UpdateTextStatusDelegate(AddressOf TextDelegateMethod), SelectedDrive.Name + " " + LanguageConfig.ReadValue("Messages", "FormatSucceeded"))
+            StatusTextBlock.Dispatcher.BeginInvoke(Sub() StatusTextBlock.Text = SelectedDrive.Name + " " + LanguageConfig.ReadValue("Messages", "FormatSucceeded"))
         Else
             StatusTextBlock.Text = SelectedDrive.Name + " " + LanguageConfig.ReadValue("Messages", "FormatSucceeded")
         End If
 
-        StatusProgressBar.Visibility = Visibility.Hidden
+        'Hide format progressbar
+        If StatusProgressBar.Dispatcher.CheckAccess() = False Then
+            StatusProgressBar.Dispatcher.BeginInvoke(Sub() StatusProgressBar.Visibility = Visibility.Hidden)
+        Else
+            StatusProgressBar.Visibility = Visibility.Hidden
+        End If
 
+        'Create folders if CreateDefaultFoldersCheckBox is checked
         If CreateDefaultFoldersCheckBox.IsChecked Then
+            If StatusTextBlock.Dispatcher.CheckAccess() = False Then
+                StatusTextBlock.Dispatcher.BeginInvoke(Sub() StatusTextBlock.Text = "Creating directories")
+            Else
+                StatusTextBlock.Text = "Creating directories"
+            End If
             CreateDirectories()
         End If
 
+        'Create autorun with icon if SetUSBIconCheckBox is checked
         If SetUSBIconCheckBox.IsChecked Then
+            If StatusTextBlock.Dispatcher.CheckAccess() = False Then
+                StatusTextBlock.Dispatcher.BeginInvoke(Sub() StatusTextBlock.Text = "Creating autorun")
+            Else
+                StatusTextBlock.Text = "Creating autorun"
+            End If
             CreateUSBAutorun()
         End If
 
+        'Set drive permissions
         If StatusTextBlock.Dispatcher.CheckAccess() = False Then
-            StatusTextBlock.Dispatcher.BeginInvoke(New UpdateTextStatusDelegate(AddressOf TextDelegateMethod), LanguageConfig.ReadValue("Messages", "SettingPermissions") + " " + SelectedDrive.Name)
+            StatusTextBlock.Dispatcher.BeginInvoke(Sub() StatusTextBlock.Text = LanguageConfig.ReadValue("Messages", "SettingPermissions") + " " + SelectedDrive.Name)
         Else
             StatusTextBlock.Text = LanguageConfig.ReadValue("Messages", "SettingPermissions") + " " + SelectedDrive.Name
         End If
@@ -312,105 +493,33 @@ Class MainWindow
         PermissionWorker.RunWorkerAsync()
     End Sub
 
-    Private Sub MainWindow_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
-        'Set Window Title and add current version
-        Dim VersionString As String = String.Format("{0}.{1}", My.Application.Info.Version.Major, My.Application.Info.Version.Minor)
-        Title = "XboxMediaUSB v" + VersionString
-
-        'Load config file if exists
-        If File.Exists(My.Computer.FileSystem.CurrentDirectory + "\config.ini") And File.Exists(My.Computer.FileSystem.CurrentDirectory + "\languages\EN.ini") Then
-            ConfigFile = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\config.ini") 'Set the general config file
-
-            If Not ConfigFile.ReadValue("Config", "Language") = "" Then 'Check if any language is set in the config file
-                CurrentLanguage = ConfigFile.ReadValue("Config", "Language") 'Set the language
-
-                If Not CurrentLanguage = "EN.ini" Then 'If it's not English then change the language
-                    LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\" + CurrentLanguage) 'Set the language config file
-                    ChangeUILanguage()
-                Else
-                    LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\EN.ini") 'Required for dialog strings
-                End If
-
-            Else
-                ConfigFile.WriteValue("Config", "Language", "EN") 'Set the key if no language is set
-                LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\EN.ini")
-            End If
-
-        Else 'Config file and language folder do not exist
-            CheckConfigAndLanguage()
-            ConfigFile = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\config.ini") 'Set the general config file
-            CurrentLanguage = "EN" 'Set the language
-            LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\EN.ini") 'Set language config
-        End If
-
-        'List removable and fixed drives in 'Ready' state
-        For Each Drive As DriveInfo In DriveInfo.GetDrives()
-            If Drive.DriveType = DriveType.Removable And Drive.IsReady Or DriveType.Fixed And Drive.IsReady Then
-                DriveList1.Items.Add(Drive.Name + vbTab + Drive.VolumeLabel)
-                DriveList2.Items.Add(Drive.Name + vbTab + Drive.VolumeLabel)
-            End If
-        Next
-
-        'Add all available languages from 'languages' directory to a combobox (in case you want to load a language that has not been added yet)
-        For Each Language As String In Directory.GetFiles(My.Computer.FileSystem.CurrentDirectory + "\languages", "*.ini")
-            Dim LanguageFileInfo As New FileInfo(Language)
-            LanguagesComboBox.Items.Add(LanguageFileInfo.Name)
-        Next
-    End Sub
-
-    Private Sub LanguagesComboBox_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles LanguagesComboBox.SelectionChanged
-        'Set the selected language from the combobox
-        If LanguagesComboBox.SelectedItem IsNot Nothing Then
-            Try
-                Dim NewLanguage As String = e.AddedItems(0).ToString
-                ConfigFile.WriteValue("Config", "Language", NewLanguage)
-                LanguageConfig = New INI.IniFile(My.Computer.FileSystem.CurrentDirectory + "\languages\" + NewLanguage)
-                ChangeUILanguage()
-            Catch ex As Exception
-                MsgBox("Error setting custom language. Please check your file.", MsgBoxStyle.Critical, "Error")
-            End Try
-        End If
-    End Sub
-
-    Private Sub SetUSBInfosButton_Click(sender As Object, e As RoutedEventArgs) Handles SetUSBInfosButton.Click
-        CreateUSBAutorun()
-    End Sub
+#End Region
 
 End Class
 
 Namespace INI
-
     Public Class IniFile
         Public IniPath As String
 
-        <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> Private Shared Function WritePrivateProfileString(ByVal lpAppName As String,
-                        ByVal lpKeyName As String,
-                        ByVal lpString As String,
-                        ByVal lpFileName As String) As Boolean
+        <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> Private Shared Function WritePrivateProfileString(lpAppName As String, lpKeyName As String, lpString As String, lpFileName As String) As Boolean
         End Function
 
-        <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> Private Shared Function GetPrivateProfileString(ByVal lpAppName As String,
-                        ByVal lpKeyName As String,
-                        ByVal lpDefault As String,
-                        ByVal lpReturnedString As StringBuilder,
-                        ByVal nSize As Integer,
-                        ByVal lpFileName As String) As Integer
+        <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> Private Shared Function GetPrivateProfileString(lpAppName As String, lpKeyName As String, lpDefault As String, lpReturnedString As StringBuilder, nSize As Integer, lpFileName As String) As Integer
         End Function
 
-        Public Sub New(ByVal INIPathValue As String)
+        Public Sub New(INIPathValue As String)
             IniPath = INIPathValue
         End Sub
 
-        Public Sub WriteValue(ByVal Section As String, ByVal Key As String, ByVal Value As String)
+        Public Sub WriteValue(Section As String, Key As String, Value As String)
             WritePrivateProfileString(Section, Key, Value, IniPath)
         End Sub
 
-        Public Function ReadValue(ByVal Section As String, ByVal Key As String) As String
+        Public Function ReadValue(Section As String, Key As String) As String
             Dim res As Integer
             Dim sb As New StringBuilder(255)
             res = GetPrivateProfileString(Section, Key, "", sb, sb.Capacity, IniPath)
             Return sb.ToString()
         End Function
     End Class
-
 End Namespace

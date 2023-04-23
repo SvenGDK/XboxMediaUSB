@@ -11,9 +11,9 @@
         <TextBlock x:Name="PrepareNewTextBlock" HorizontalAlignment="Left" Margin="13,167,0,0" TextWrapping="Wrap" Text="Prepare new a USB drive" VerticalAlignment="Top" FontSize="16" Width="250" TextAlignment="Center"/>
         <ComboBox x:Name="DriveList1" HorizontalAlignment="Left" Margin="13,228,0,0" VerticalAlignment="Top" Width="250"/>
         <TextBlock x:Name="SelectUSBFromListTextBlock1" HorizontalAlignment="Left" Margin="13,207,0,0" TextWrapping="Wrap" Text="Select a removable USB drive from the list :" VerticalAlignment="Top" Width="250" TextAlignment="Center"/>
-        <TextBlock x:Name="WarningTextBlock" HorizontalAlignment="Left" Margin="13,255,0,0" TextWrapping="Wrap" Text="Warning: All Data on this drive will be erased!" VerticalAlignment="Top" FontWeight="Bold" FontSize="10" Width="250" TextAlignment="Center"/>
+        <TextBlock x:Name="WarningTextBlock" HorizontalAlignment="Left" Margin="13,255,0,0" TextWrapping="Wrap" Text="Warning: All Data on this drive will be erased!" VerticalAlignment="Top" FontWeight="Bold" FontSize="10" Width="250" TextAlignment="Center" FontStyle="Italic" Foreground="#FFC10000"/>
         <Button x:Name="FormatUSBButton" Content="Format USB" HorizontalAlignment="Left" Margin="47,353,0,0" VerticalAlignment="Top" Width="173"/>
-        <TextBlock x:Name="OptionsTextBlock" HorizontalAlignment="Left" Margin="38,279,0,0" TextWrapping="Wrap" Text="Options :" VerticalAlignment="Top"/>
+        <TextBlock x:Name="OptionsTextBlock" HorizontalAlignment="Left" Margin="13,279,0,0" TextWrapping="Wrap" Text="Options :" VerticalAlignment="Top" Width="250" TextAlignment="Center" FontWeight="Bold"/>
         <CheckBox x:Name="CreateDefaultFoldersCheckBox" Content="Create default folders" HorizontalAlignment="Left" Margin="65,303,0,0" VerticalAlignment="Top" IsChecked="True" Width="198"/>
         <CheckBox x:Name="SetUSBIconCheckBox" Content="Set USB drive icon" HorizontalAlignment="Left" Margin="65,323,0,0" VerticalAlignment="Top" IsChecked="False" Width="198"/>
         <Image HorizontalAlignment="Left" Height="64" Margin="382,98,0,0" VerticalAlignment="Top" Width="64" Source="/permissions.png"/>
