@@ -240,7 +240,7 @@ Class MainWindow
             Using EnglishFileWriter As New StreamWriter(My.Computer.FileSystem.CurrentDirectory + "\languages\EN.ini", False, Encoding.GetEncoding("ISO-8859-1"))
                 EnglishFileWriter.WriteLine("[Interface]")
                 EnglishFileWriter.WriteLine("Welcome=Welcome to XboxMediaUSB !")
-                EnglishFileWriter.WriteLine("PrepareGroupBox=Prepare new a USB drive")
+                EnglishFileWriter.WriteLine("PrepareGroupBox=Prepare a new USB drive")
                 EnglishFileWriter.WriteLine("SelectLabel1=Select a removable USB drive from the list :")
                 EnglishFileWriter.WriteLine("SelectLabel2=Select a removable USB drive from the list :")
                 EnglishFileWriter.WriteLine("WarningLabel=Warning: All Data on this drive will be erased.")

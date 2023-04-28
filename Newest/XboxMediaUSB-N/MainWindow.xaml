@@ -8,7 +8,7 @@
         Title="XboxMediaUSB-N" Height="435" Width="580" ResizeMode="CanMinimize">
     <Grid>
         <Image HorizontalAlignment="Left" Height="64" Margin="101,98,0,0" VerticalAlignment="Top" Width="64" Source="/xboxusb.png"/>
-        <TextBlock x:Name="PrepareNewTextBlock" HorizontalAlignment="Left" Margin="13,167,0,0" TextWrapping="Wrap" Text="Prepare new a USB drive" VerticalAlignment="Top" FontSize="16" Width="250" TextAlignment="Center"/>
+        <TextBlock x:Name="PrepareNewTextBlock" HorizontalAlignment="Left" Margin="13,167,0,0" TextWrapping="Wrap" Text="Prepare a new USB drive" VerticalAlignment="Top" FontSize="16" Width="250" TextAlignment="Center"/>
         <ComboBox x:Name="DriveList1" HorizontalAlignment="Left" Margin="13,228,0,0" VerticalAlignment="Top" Width="250"/>
         <TextBlock x:Name="SelectUSBFromListTextBlock1" HorizontalAlignment="Left" Margin="13,207,0,0" TextWrapping="Wrap" Text="Select a removable USB drive from the list :" VerticalAlignment="Top" Width="250" TextAlignment="Center"/>
         <TextBlock x:Name="WarningTextBlock" HorizontalAlignment="Left" Margin="13,255,0,0" TextWrapping="Wrap" Text="Warning: All Data on this drive will be erased!" VerticalAlignment="Top" FontWeight="Bold" FontSize="10" Width="250" TextAlignment="Center" FontStyle="Italic" Foreground="#FFC10000"/>
