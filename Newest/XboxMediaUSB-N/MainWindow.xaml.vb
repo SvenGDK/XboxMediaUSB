@@ -94,32 +94,6 @@ Class MainWindow
         End If
     End Sub
 
-#Region "Drive Selection"
-
-    Private Sub DriveList1_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles DriveList1.SelectionChanged
-        If DriveList1.SelectedItem IsNot Nothing And e.AddedItems(0) IsNot Nothing Then
-            Try
-                Dim SelectedDriveLetter As String = e.AddedItems(0).ToString().Split(CChar(vbTab))(0)
-                SelectedDrive = New DriveInfo(SelectedDriveLetter)
-            Catch ex As Exception
-                MsgBox(LanguageConfig.ReadValue("Errors", "DriveInformationError"))
-            End Try
-        End If
-    End Sub
-
-    Private Sub DriveList2_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles DriveList2.SelectionChanged
-        If DriveList2.SelectedItem IsNot Nothing And e.AddedItems(0) IsNot Nothing Then
-            Try
-                Dim SelectedDriveLetter As String = e.AddedItems(0).ToString().Split(CChar(vbTab))(0)
-                SelectedDrive = New DriveInfo(SelectedDriveLetter)
-            Catch ex As Exception
-                MsgBox(LanguageConfig.ReadValue("Errors", "DriveInformationError"))
-            End Try
-        End If
-    End Sub
-
-#End Region
-
 #Region "Subs"
 
     Private Sub CreateDirectories()
@@ -299,7 +273,12 @@ Class MainWindow
 #Region "Button Actions"
 
     Private Sub FormatUSBButton_Click(sender As Object, e As RoutedEventArgs) Handles FormatUSBButton.Click
-        If DriveList1.SelectedItem IsNot Nothing And SelectedDrive IsNot Nothing Then
+        If DriveList1.SelectedItem IsNot Nothing Then
+
+            'Set the SelectedDrive
+            Dim SelectedDriveLetter As String = CType(DriveList1.SelectedItem, String)
+            SelectedDrive = New DriveInfo(SelectedDriveLetter.Split(CChar(vbTab))(0))
+
             If MsgBox(LanguageConfig.ReadValue("Messages", "FormatConfirmationLine1") + " " + SelectedDrive.Name + " ?" + vbNewLine +
             LanguageConfig.ReadValue("Messages", "FormatConfirmationLine2"),
                       MsgBoxStyle.YesNo, LanguageConfig.ReadValue("Messages", "FormatConfirmation")) = MsgBoxResult.Yes Then
@@ -346,7 +325,12 @@ Class MainWindow
     End Sub
 
     Private Sub AddPermissionsButton_Click(sender As Object, e As RoutedEventArgs) Handles AddPermissionsButton.Click
-        If DriveList2.SelectedItem IsNot Nothing And SelectedDrive IsNot Nothing Then
+        If DriveList2.SelectedItem IsNot Nothing Then
+
+            'Set the SelectedDrive
+            Dim SelectedDriveLetter As String = CType(DriveList2.SelectedItem, String)
+            SelectedDrive = New DriveInfo(SelectedDriveLetter.Split(CChar(vbTab))(0))
+
             PermissionWorker.RunWorkerAsync()
         Else
             MsgBox("Please select a drive first", MsgBoxStyle.Exclamation)
@@ -354,7 +338,12 @@ Class MainWindow
     End Sub
 
     Private Sub SetUSBInfosButton_Click(sender As Object, e As RoutedEventArgs) Handles SetUSBInfosButton.Click
-        If DriveList2.SelectedItem IsNot Nothing And SelectedDrive IsNot Nothing Then
+        If DriveList2.SelectedItem IsNot Nothing Then
+
+            'Set the SelectedDrive
+            Dim SelectedDriveLetter As String = CType(DriveList2.SelectedItem, String)
+            SelectedDrive = New DriveInfo(SelectedDriveLetter.Split(CChar(vbTab))(0))
+
             CreateUSBAutorun()
         Else
             MsgBox("Please select a drive first", MsgBoxStyle.Exclamation)
